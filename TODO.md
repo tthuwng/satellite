@@ -16,8 +16,8 @@
     -   [x] Implement logic to process `updatesCh` and update the cache. // Handlers update cache directly
 -   [x] **3.5 Graph builder:**
     -   [x] Define `Graph`, `GraphNode`, `GraphRelationship` structs matching the spec.
-    -   [ ] Implement function `BuildGraph(cache map[EntityKey]SimplifiedObject) Graph`.
-    -   [ ] Iterate cache to create `[]GraphNode`.
+    -   [x] Implement function `BuildGraph(cache map[EntityKey]SimplifiedObject) Graph`. // Skeleton + basic node creation
+    -   [x] Iterate cache to create `[]GraphNode`. // Basic node creation done
     -   [ ] Implement relationship derivation logic:
         -   [ ] Pod -> ReplicaSet (`ownerReferences`).
         -   [ ] ReplicaSet -> Deployment (`ownerReferences`).
