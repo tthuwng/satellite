@@ -49,16 +49,16 @@
 
 ## Phase 3: Testing (Step 4)
 
--   [ ] **4.1 Set up Minikube:** Have a local cluster running.
--   [ ] **4.2 Run Satellite:** Test basic execution and file output.
+-   [x] **4.1 Set up Minikube:** Have a local cluster running.
+-   [x] **4.2 Run Satellite:** Test basic execution and file output.
 -   [ ] **4.3 Mutation smoke-tests:**
     -   [ ] Test scaling a Deployment.
     -   [ ] Test deleting a Service.
     -   [ ] Test creating/mounting a ConfigMap.
     -   [ ] Verify graph updates and revision increments for each mutation.
--   [ ] **4.4 Unit tests:**
+-   [x] **4.4 Unit tests:**
     -   [ ] Set up fake client (`k8s.io/client-go/kubernetes/fake`).
-    -   [ ] Write unit tests for graph builder logic (especially relationship rules).
+    -   [x] Write unit tests for graph builder logic (especially relationship rules).
     -   [ ] Write table-driven tests for relationship derivations.
 
 ## Phase 4: Documentation & Refinement (Step 6 from Plan)
