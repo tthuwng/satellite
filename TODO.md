@@ -42,10 +42,10 @@
     -   [x] Add flags for `--output-dir`.
     -   [ ] Add flag for `--emit-frequency`. // Skipped for now, using event-driven model
     -   [x] Add flag for `--log-level`. // Filtering implemented with logrus
--   [ ] **3.9 Graceful shutdown:**
-    -   [ ] Implement signal handling (SIGINT, SIGTERM).
-    -   [ ] Ensure informers are stopped.
-    -   [ ] Ensure the last graph state is flushed before exiting.
+-   [x] **3.9 Graceful shutdown:**
+    -   [x] Implement signal handling (SIGINT, SIGTERM).
+    -   [x] Ensure informers are stopped.
+    -   [x] Ensure the last graph state is flushed before exiting.
 
 ## Phase 3: Testing (Step 4)
 

@@ -112,11 +112,14 @@ func main() {
 
 	// --- Signal Handling & Start ---
 	stopCh := make(chan struct{})
+	shutdownCh := make(chan struct{})
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+
 	go func() {
-		<-sigCh
-		log.Info("Shutting down...")
+		sig := <-sigCh
+		log.Infof("Received signal: %s. Shutting down...", sig)
+		close(shutdownCh)
 		close(stopCh)
 	}()
 
@@ -153,10 +156,21 @@ Loop:
 				log.Errorf("Error emitting graph revision %d: %v", graphRevision, err)
 			}
 
-		case <-stopCh:
-			log.Info("Received stop signal, exiting build loop.")
+		case <-shutdownCh:
+			log.Info("Shutdown signal received, exiting build loop for final emit.")
 			break Loop
 		}
+	}
+
+	log.Info("Performing final graph build and emit...")
+	revisionMu.Lock()
+	currentGraphRevision++
+	finalGraphRevision := currentGraphRevision
+	revisionMu.Unlock()
+
+	finalGraph := BuildGraph(resourceCache, finalGraphRevision)
+	if err := EmitGraph(finalGraph, *outputDir); err != nil {
+		log.Errorf("Error emitting final graph revision %d: %v", finalGraphRevision, err)
 	}
 
 	log.Info("Shutdown complete.")
