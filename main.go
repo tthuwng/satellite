@@ -124,21 +124,25 @@ func main() {
 Loop:
 	for {
 		select {
-		case <-resourceCache.Changed(): // Wait for cache change signal
+		case <-resourceCache.Changed(): // wait for cache change signal
 			revisionMu.Lock()
 			currentGraphRevision++
-			graphRevision := currentGraphRevision // Capture revision for this build
+			graphRevision := currentGraphRevision
 			revisionMu.Unlock()
 
 			log.Printf("Cache changed: Building graph revision %d\n", graphRevision)
 			graph := BuildGraph(resourceCache, graphRevision)
-			// TODO: Emit graph
-			log.Printf("Built graph revision %d with %d nodes and %d relationships (not emitted yet).\n",
-				graph.GraphRevision, len(graph.Nodes), len(graph.Relationships))
+
+			// emit graph
+			// TODO: Get outputDir from flag
+			outputDir := "./data"
+			if err := EmitGraph(graph, outputDir); err != nil {
+				log.Printf("Error emitting graph revision %d: %v\n", graphRevision, err)
+			}
 
 		case <-stopCh:
 			log.Println("Received stop signal, exiting build loop.")
-			break Loop // Exit the for loop
+			break Loop
 		}
 	}
 

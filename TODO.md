@@ -28,13 +28,13 @@
     -   [x] Add a global `revision` counter (`uint64`).
     -   [x] Increment `revision` on every cache change.
     -   [x] Stamp `revision` on nodes/relationships affected by the change (or simply on the whole graph for simplicity initially). // Stamping whole graph
--   [ ] **3.7 Emit:**
-    -   [ ] Implement JSON marshaling (consider `jsoniter`).
-    -   [ ] Implement file writing logic:
-        -   [ ] Generate versioned filename (`graph-YYYYMMDD-HHMMSS.jsonl`).
-        -   [ ] Write to a temporary file.
-        -   [ ] Use `os.Rename` for atomic write.
-    -   [ ] Trigger emit periodically or based on cache changes.
+-   [x] **3.7 Emit:**
+    -   [x] Implement JSON marshaling (consider `jsoniter`). // using standard json for now
+    -   [x] Implement file writing logic:
+        -   [x] Generate versioned filename (`graph-YYYYMMDD-HHMMSS.jsonl`). // Using .json
+        -   [x] Write to a temporary file.
+        -   [x] Use `os.Rename` for atomic write.
+    -   [x] Trigger emit periodically or based on cache changes. // triggered on cache change
 
 ## Phase 2: CLI & Operability (Steps 3.8 - 3.9)
 
