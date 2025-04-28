@@ -3,10 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // marshals the graph to JSON and writes it atomically to a timestamped file
@@ -55,6 +56,6 @@ func EmitGraph(graph Graph, outputDir string) error {
 	}
 
 	tempFile = nil
-	log.Printf("Successfully emitted graph revision %d to %s\n", graph.GraphRevision, finalFilename)
+	log.Infof("Successfully emitted graph revision %d to %s", graph.GraphRevision, finalFilename)
 	return nil
 }

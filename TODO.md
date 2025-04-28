@@ -38,10 +38,10 @@
 
 ## Phase 2: CLI & Operability (Steps 3.8 - 3.9)
 
--   [ ] **3.8 CLI flags:**
-    -   [ ] Add flags for `--output-dir`.
-    -   [ ] Add flag for `--emit-frequency`.
-    -   [ ] Add flag for `--log-level`.
+-   [x] **3.8 CLI flags:**
+    -   [x] Add flags for `--output-dir`.
+    -   [ ] Add flag for `--emit-frequency`. // Skipped for now, using event-driven model
+    -   [x] Add flag for `--log-level`. // Filtering implemented with logrus
 -   [ ] **3.9 Graceful shutdown:**
     -   [ ] Implement signal handling (SIGINT, SIGTERM).
     -   [ ] Ensure informers are stopped.

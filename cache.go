@@ -1,8 +1,9 @@
 package main
 
 import (
-	"log"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -42,18 +43,16 @@ func getKey(obj runtime.Object) (EntityKey, bool) {
 	gvk := obj.GetObjectKind().GroupVersionKind()
 	kind := gvk.Kind
 	if kind == "" {
-		// GVK might not be set on objects from the fake client in tests,
-		// or sometimes from the API server directly. Infer kind from type.
 		kind = getKindFromType(obj)
 		if kind == "" {
-			log.Printf("Warn: Could not determine Kind for object %s/%s", meta.Namespace, meta.Name)
+			log.Warnf("Could not determine Kind for object %s/%s", meta.Namespace, meta.Name)
 			return EntityKey{}, false
 		}
 	}
 
 	key := EntityKey{
 		Kind:      kind,
-		Namespace: meta.Namespace, // empty for non-namespaced resources like Node
+		Namespace: meta.Namespace,
 		Name:      meta.Name,
 	}
 	return key, true
@@ -75,7 +74,7 @@ func getKindFromType(obj runtime.Object) string {
 	case *corev1.ConfigMap:
 		return "ConfigMap"
 	default:
-		log.Printf("Warn: Unknown type in getKindFromType: %T\n", obj)
+		log.Warnf("Unknown type in getKindFromType: %T", obj)
 		return ""
 	}
 }
@@ -88,7 +87,7 @@ func (c *ResourceCache) Upsert(obj runtime.Object) {
 	}
 
 	c.mu.Lock()
-	log.Printf("Cache Upsert: %s %s/%s\n", key.Kind, key.Namespace, key.Name)
+	log.Debugf("Cache Upsert: %s %s/%s", key.Kind, key.Namespace, key.Name)
 	c.store[key] = obj
 	c.mu.Unlock()
 	c.signalChange()
@@ -103,14 +102,13 @@ func (c *ResourceCache) Delete(obj interface{}) { // accepts interface{} to hand
 	if ok {
 		robj, ok = tombstone.Obj.(runtime.Object)
 		if !ok {
-			log.Printf("Error: Tombstone contained non-runtime.Object: %T", tombstone.Obj)
+			log.Errorf("Tombstone contained non-runtime.Object: %T", tombstone.Obj)
 			return
 		}
-		log.Printf("Cache Delete (from tombstone): %s\n", tombstone.Key)
 	} else {
 		robj, ok = obj.(runtime.Object)
 		if !ok {
-			log.Printf("Error: Delete event received non-runtime.Object and non-tombstone: %T", obj)
+			log.Errorf("Delete event received non-runtime.Object and non-tombstone: %T", obj)
 			return
 		}
 	}
@@ -123,7 +121,7 @@ func (c *ResourceCache) Delete(obj interface{}) { // accepts interface{} to hand
 	c.mu.Lock()
 	_, exists := c.store[key]
 	if exists {
-		log.Printf("Cache Delete: %s %s/%s\n", key.Kind, key.Namespace, key.Name)
+		log.Debugf("Cache Delete: %s %s/%s", key.Kind, key.Namespace, key.Name)
 		delete(c.store, key)
 		c.mu.Unlock()
 		c.signalChange()
@@ -165,17 +163,18 @@ func (c *ResourceCache) List() []runtime.Object {
 func (c *ResourceCache) AddEventHandler(resourceType string) cache.ResourceEventHandlerFuncs {
 	return cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			log.Printf("ADD %s: %s/%s\n", resourceType, getObjectMeta(obj).Namespace, getObjectMeta(obj).Name)
+			meta := getObjectMeta(obj)
+			log.Debugf("ADD %s: %s/%s", resourceType, meta.Namespace, meta.Name)
 			c.Upsert(obj.(runtime.Object))
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			meta := getObjectMeta(newObj)
-			log.Printf("UPDATE %s: %s/%s\n", resourceType, meta.Namespace, meta.Name)
+			log.Debugf("UPDATE %s: %s/%s", resourceType, meta.Namespace, meta.Name)
 			c.Upsert(newObj.(runtime.Object))
 		},
 		DeleteFunc: func(obj interface{}) {
 			meta := getObjectMeta(obj)
-			log.Printf("DELETE %s: %s/%s\n", resourceType, meta.Namespace, meta.Name)
+			log.Debugf("DELETE %s: %s/%s", resourceType, meta.Namespace, meta.Name)
 			c.Delete(obj)
 		},
 	}

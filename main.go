@@ -1,11 +1,13 @@
 package main
 
 import (
-	"log"
+	"flag"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+
+	log "github.com/sirupsen/logrus"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -62,7 +64,26 @@ func getObjectMeta(obj interface{}) metav1.ObjectMeta {
 }
 
 func main() {
-	log.Println("Starting Satellite...")
+	// --- CLI Flags ---
+	outputDir := flag.String("output-dir", "./data", "Directory to write graph JSON files.")
+	logLevelStr := flag.String("log-level", "info", "Log level (debug, info, warn, error, fatal, panic).")
+	flag.Parse()
+
+	// --- Logger Setup ---
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+	})
+	log.SetOutput(os.Stdout)
+	level, err := log.ParseLevel(*logLevelStr)
+	if err != nil {
+		log.Warnf("Invalid log level '%s', defaulting to 'info': %v", *logLevelStr, err)
+		level = log.InfoLevel
+	}
+	log.SetLevel(level)
+	log.Infof("Log level set to: %s", level.String())
+	log.Info("Starting Satellite...")
+
+	// --- K8s Client Setup ---
 	cfg, err := clientcmd.BuildConfigFromFlags("", clientcmd.RecommendedHomeFile)
 	if err != nil {
 		log.Fatalf("Error building kubeconfig: %s", err.Error())
@@ -73,40 +94,36 @@ func main() {
 		log.Fatalf("Error building kubernetes clientset: %s", err.Error())
 	}
 
+	// --- Informers & Cache Setup ---
 	factory := informers.NewSharedInformerFactory(client, 0)
-
 	resourceCache := NewResourceCache()
-
 	podInf := factory.Core().V1().Pods().Informer()
 	podInf.AddEventHandler(resourceCache.AddEventHandler("Pod"))
-
 	rsInf := factory.Apps().V1().ReplicaSets().Informer()
 	rsInf.AddEventHandler(resourceCache.AddEventHandler("ReplicaSet"))
-
 	deployInf := factory.Apps().V1().Deployments().Informer()
 	deployInf.AddEventHandler(resourceCache.AddEventHandler("Deployment"))
-
 	nodeInf := factory.Core().V1().Nodes().Informer()
 	nodeInf.AddEventHandler(resourceCache.AddEventHandler("Node"))
-
 	svcInf := factory.Core().V1().Services().Informer()
 	svcInf.AddEventHandler(resourceCache.AddEventHandler("Service"))
-
 	cmInf := factory.Core().V1().ConfigMaps().Informer()
 	cmInf.AddEventHandler(resourceCache.AddEventHandler("ConfigMap"))
 
+	// --- Signal Handling & Start ---
 	stopCh := make(chan struct{})
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-sigCh
-		log.Println("Shutting down...")
+		log.Info("Shutting down...")
 		close(stopCh)
 	}()
 
 	factory.Start(stopCh)
 
-	log.Println("Waiting for initial cache sync...")
+	// --- Wait for Sync ---
+	log.Info("Waiting for initial cache sync...")
 	if !cache.WaitForCacheSync(stopCh,
 		podInf.HasSynced,
 		rsInf.HasSynced,
@@ -114,37 +131,33 @@ func main() {
 		nodeInf.HasSynced,
 		svcInf.HasSynced,
 		cmInf.HasSynced) {
-		log.Fatalln("Failed to sync caches")
+		log.Fatal("Failed to sync caches")
 	}
-	log.Println("Caches synced.")
+	log.Info("Caches synced.")
 
-	// --- Graph build loop (event-driven) ---
-	log.Println("Starting graph build loop...")
-
+	// --- Graph Build Loop ---
+	log.Info("Starting graph build loop...")
 Loop:
 	for {
 		select {
-		case <-resourceCache.Changed(): // wait for cache change signal
+		case <-resourceCache.Changed():
 			revisionMu.Lock()
 			currentGraphRevision++
 			graphRevision := currentGraphRevision
 			revisionMu.Unlock()
 
-			log.Printf("Cache changed: Building graph revision %d\n", graphRevision)
+			log.Debugf("Cache changed: Building graph revision %d", graphRevision)
 			graph := BuildGraph(resourceCache, graphRevision)
 
-			// emit graph
-			// TODO: Get outputDir from flag
-			outputDir := "./data"
-			if err := EmitGraph(graph, outputDir); err != nil {
-				log.Printf("Error emitting graph revision %d: %v\n", graphRevision, err)
+			if err := EmitGraph(graph, *outputDir); err != nil {
+				log.Errorf("Error emitting graph revision %d: %v", graphRevision, err)
 			}
 
 		case <-stopCh:
-			log.Println("Received stop signal, exiting build loop.")
+			log.Info("Received stop signal, exiting build loop.")
 			break Loop
 		}
 	}
 
-	log.Println("Shutdown complete.")
+	log.Info("Shutdown complete.")
 }

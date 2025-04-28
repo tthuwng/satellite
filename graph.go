@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -50,11 +51,11 @@ func BuildGraph(cache *ResourceCache, currentGraphRevision uint64) Graph {
 
 	objects := cache.List()
 
+	// --- Node building ---
 	for _, obj := range objects {
-		// runtime.Object -> GraphNode
 		key, ok := getKey(obj)
 		if !ok {
-			log.Printf("BuildGraph: Skipping object, could not get key for %T\n", obj)
+			log.Warnf("BuildGraph: Skipping object, could not get key for %T", obj)
 			continue
 		}
 
@@ -186,7 +187,7 @@ func BuildGraph(cache *ResourceCache, currentGraphRevision uint64) Graph {
 		}
 	}
 
-	log.Printf("Built graph revision %d with %d nodes and %d relationships\n",
+	log.Infof("Built graph revision %d with %d nodes and %d relationships",
 		currentGraphRevision, len(graph.Nodes), len(graph.Relationships))
 
 	return graph
@@ -272,7 +273,7 @@ func extractProperties(obj runtime.Object) map[string]string {
 		}
 
 	default:
-		log.Printf("extractProperties: Unhandled type %T", obj)
+		log.Debugf("extractProperties: Unhandled type %T", obj)
 	}
 
 	return props
