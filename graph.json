@@ -1,0 +1,203 @@
+{
+  "nodes": [
+    {
+      "id": "ReplicaSet/default/nginx-5869d7778c",
+      "label": "ReplicaSet\nnginx-5869d7778c"
+    },
+    {
+      "id": "ConfigMap/kube-system/kube-apiserver-legacy-service-account-token-tracking",
+      "label": "ConfigMap\nkube-apiserver-legacy-service-account-token-tracking"
+    },
+    {
+      "id": "ConfigMap/kube-system/kube-proxy",
+      "label": "ConfigMap\nkube-proxy"
+    },
+    {
+      "id": "ConfigMap/kube-system/kubeadm-config",
+      "label": "ConfigMap\nkubeadm-config"
+    },
+    {
+      "id": "Deployment/default/nginx",
+      "label": "Deployment\nnginx"
+    },
+    {
+      "id": "ConfigMap/kube-node-lease/kube-root-ca.crt",
+      "label": "ConfigMap\nkube-root-ca.crt"
+    },
+    {
+      "id": "ConfigMap/kube-public/kube-root-ca.crt",
+      "label": "ConfigMap\nkube-root-ca.crt"
+    },
+    {
+      "id": "Pod/kube-system/kube-apiserver-minikube",
+      "label": "Pod\nkube-apiserver-minikube"
+    },
+    {
+      "id": "Pod/kube-system/kube-proxy-6jj5m",
+      "label": "Pod\nkube-proxy-6jj5m"
+    },
+    {
+      "id": "Pod/kube-system/kube-scheduler-minikube",
+      "label": "Pod\nkube-scheduler-minikube"
+    },
+    {
+      "id": "Pod/kube-system/storage-provisioner",
+      "label": "Pod\nstorage-provisioner"
+    },
+    {
+      "id": "ConfigMap/default/kube-root-ca.crt",
+      "label": "ConfigMap\nkube-root-ca.crt"
+    },
+    {
+      "id": "ConfigMap/kube-system/coredns",
+      "label": "ConfigMap\ncoredns"
+    },
+    {
+      "id": "Deployment/kube-system/coredns",
+      "label": "Deployment\ncoredns"
+    },
+    {
+      "id": "Pod/kube-system/coredns-668d6bf9bc-jsg8h",
+      "label": "Pod\ncoredns-668d6bf9bc-jsg8h"
+    },
+    {
+      "id": "Pod/kube-system/etcd-minikube",
+      "label": "Pod\netcd-minikube"
+    },
+    {
+      "id": "Pod/kube-system/kube-controller-manager-minikube",
+      "label": "Pod\nkube-controller-manager-minikube"
+    },
+    {
+      "id": "Node/_/minikube",
+      "label": "Node\nminikube"
+    },
+    {
+      "id": "ReplicaSet/default/nginx-54c98b4f84",
+      "label": "ReplicaSet\nnginx-54c98b4f84"
+    },
+    {
+      "id": "ConfigMap/kube-public/cluster-info",
+      "label": "ConfigMap\ncluster-info"
+    },
+    {
+      "id": "ConfigMap/kube-system/extension-apiserver-authentication",
+      "label": "ConfigMap\nextension-apiserver-authentication"
+    },
+    {
+      "id": "ConfigMap/kube-system/kube-root-ca.crt",
+      "label": "ConfigMap\nkube-root-ca.crt"
+    },
+    {
+      "id": "ConfigMap/kube-system/kubelet-config",
+      "label": "ConfigMap\nkubelet-config"
+    },
+    {
+      "id": "ReplicaSet/kube-system/coredns-668d6bf9bc",
+      "label": "ReplicaSet\ncoredns-668d6bf9bc"
+    },
+    {
+      "id": "Pod/default/nginx-5869d7778c-rgrg7",
+      "label": "Pod\nnginx-5869d7778c-rgrg7"
+    },
+    {
+      "id": "Service/default/kubernetes",
+      "label": "Service\nkubernetes"
+    },
+    {
+      "id": "Service/default/nginx",
+      "label": "Service\nnginx"
+    },
+    {
+      "id": "Service/kube-system/kube-dns",
+      "label": "Service\nkube-dns"
+    }
+  ],
+  "edges": [
+    {
+      "from": "ReplicaSet/default/nginx-5869d7778c",
+      "to": "Deployment/default/nginx",
+      "label": "OWNED_BY"
+    },
+    {
+      "from": "Pod/kube-system/kube-apiserver-minikube",
+      "to": "Node/_/minikube",
+      "label": "SCHEDULED_ON"
+    },
+    {
+      "from": "Pod/kube-system/kube-proxy-6jj5m",
+      "to": "Node/_/minikube",
+      "label": "SCHEDULED_ON"
+    },
+    {
+      "from": "Pod/kube-system/kube-proxy-6jj5m",
+      "to": "ConfigMap/kube-system/kube-proxy",
+      "label": "MOUNTS"
+    },
+    {
+      "from": "Pod/kube-system/kube-scheduler-minikube",
+      "to": "Node/_/minikube",
+      "label": "SCHEDULED_ON"
+    },
+    {
+      "from": "Pod/kube-system/storage-provisioner",
+      "to": "Node/_/minikube",
+      "label": "SCHEDULED_ON"
+    },
+    {
+      "from": "Pod/kube-system/coredns-668d6bf9bc-jsg8h",
+      "to": "ReplicaSet/kube-system/coredns-668d6bf9bc",
+      "label": "OWNED_BY"
+    },
+    {
+      "from": "Pod/kube-system/coredns-668d6bf9bc-jsg8h",
+      "to": "Node/_/minikube",
+      "label": "SCHEDULED_ON"
+    },
+    {
+      "from": "Pod/kube-system/coredns-668d6bf9bc-jsg8h",
+      "to": "ConfigMap/kube-system/coredns",
+      "label": "MOUNTS"
+    },
+    {
+      "from": "Pod/kube-system/etcd-minikube",
+      "to": "Node/_/minikube",
+      "label": "SCHEDULED_ON"
+    },
+    {
+      "from": "Pod/kube-system/kube-controller-manager-minikube",
+      "to": "Node/_/minikube",
+      "label": "SCHEDULED_ON"
+    },
+    {
+      "from": "ReplicaSet/default/nginx-54c98b4f84",
+      "to": "Deployment/default/nginx",
+      "label": "OWNED_BY"
+    },
+    {
+      "from": "ReplicaSet/kube-system/coredns-668d6bf9bc",
+      "to": "Deployment/kube-system/coredns",
+      "label": "OWNED_BY"
+    },
+    {
+      "from": "Pod/default/nginx-5869d7778c-rgrg7",
+      "to": "ReplicaSet/default/nginx-5869d7778c",
+      "label": "OWNED_BY"
+    },
+    {
+      "from": "Pod/default/nginx-5869d7778c-rgrg7",
+      "to": "Node/_/minikube",
+      "label": "SCHEDULED_ON"
+    },
+    {
+      "from": "Service/default/nginx",
+      "to": "Pod/default/nginx-5869d7778c-rgrg7",
+      "label": "SELECTS"
+    },
+    {
+      "from": "Service/kube-system/kube-dns",
+      "to": "Pod/kube-system/coredns-668d6bf9bc-jsg8h",
+      "label": "SELECTS"
+    }
+  ]
+}

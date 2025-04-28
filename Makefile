@@ -1,4 +1,4 @@
-.PHONY: run test clean fmt vet build all test-verbose viz smoke-test
+.PHONY: run test clean fmt vet build all test-verbose viz view smoke-test
 
 BINARY_NAME=satellite
 
@@ -25,8 +25,12 @@ clean:
 test-verbose:
 	go test -v ./...
 
-viz:
+viz:                       ## Convert newest graph-*.json -> graph.json
 	./viz.sh
+
+view: viz                  ## viz + start a quick web server on :8080
+	python3 -m http.server 8080
+	@echo "Open http://localhost:8080/viz.html"
 
 smoke-test:
 	./smoke_test.sh

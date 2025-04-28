@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        body {
+            margin: 0
+        }
+
+        #graph {
+            height: 95vh;
+            width: 100%
+        }
+    </style>
+</head>
+
+<body>
+    <div id="graph"></div>
+    <script>
+        fetch('graph.json')
+            .then(r => r.json())
+            .then(g => {
+                const nodes = new vis.DataSet(
+                    g.nodes.map(n => ({
+                        id: n.id,
+                        label: n.label,
+                        shape: 'box',
+                        font: { align: 'left' }
+                    }))
+                );
+
+                const edges = new vis.DataSet(
+                    g.edges.map(e => ({
+                        from: e.from,
+                        to: e.to,
+                        arrows: 'to',
+                        label: e.label
+                    }))
+                );
+
+                new vis.Network(
+                    document.getElementById('graph'),
+                    { nodes, edges },
+                    {
+                        layout: { improvedLayout: true },
+                        physics: { stabilization: false },
+                        interaction: { hover: true }
+                    }
+                );
+            });
+    </script>
+</body>
+
+</html>

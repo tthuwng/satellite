@@ -1,0 +1,732 @@
+{
+  "nodes": [
+    {
+      "key": {
+        "name": "nginx-5869d7778c",
+        "namespace": "default",
+        "kind": "ReplicaSet"
+      },
+      "properties": {
+        "annotations": "deployment.kubernetes.io/desired-replicas=1,deployment.kubernetes.io/max-replicas=2,deployment.kubernetes.io/revision=3,deployment.kubernetes.io/revision-history=1",
+        "creationTimestamp": "2025-04-28 00:04:42 -0700 PDT",
+        "labels": "app=nginx,pod-template-hash=5869d7778c",
+        "resourceVersion": "8270",
+        "spec.replicas": "1",
+        "spec.selector": "app=nginx,pod-template-hash=5869d7778c",
+        "status.availableReplicas": "1",
+        "status.readyReplicas": "1",
+        "status.replicas": "1",
+        "uid": "acada33c-80fc-4789-939a-fdb7187084c8"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kube-apiserver-legacy-service-account-token-tracking",
+        "namespace": "kube-system",
+        "kind": "ConfigMap"
+      },
+      "properties": {
+        "creationTimestamp": "2025-04-27 21:57:19 -0700 PDT",
+        "data.keys": "since",
+        "resourceVersion": "56",
+        "uid": "3ef7e736-ea17-467a-bd85-09a0fef848ab"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kube-proxy",
+        "namespace": "kube-system",
+        "kind": "ConfigMap"
+      },
+      "properties": {
+        "creationTimestamp": "2025-04-27 21:57:21 -0700 PDT",
+        "data.keys": "config.conf,kubeconfig.conf",
+        "labels": "app=kube-proxy",
+        "resourceVersion": "245",
+        "uid": "32da2c33-d692-46c0-abd1-b4582e09e21e"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kubeadm-config",
+        "namespace": "kube-system",
+        "kind": "ConfigMap"
+      },
+      "properties": {
+        "creationTimestamp": "2025-04-27 21:57:20 -0700 PDT",
+        "data.keys": "ClusterConfiguration",
+        "resourceVersion": "202",
+        "uid": "c1286a24-33b8-4570-80c7-c9d2afff29ea"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "nginx",
+        "namespace": "default",
+        "kind": "Deployment"
+      },
+      "properties": {
+        "annotations": "deployment.kubernetes.io/revision=3,kubectl.kubernetes.io/last-applied-configuration={\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"name\":\"nginx\",\"namespace\":\"default\"},\"spec\":{\"replicas\":1,\"selector\":{\"matchLabels\":{\"app\":\"nginx\"}},\"template\":{\"metadata\":{\"labels\":{\"app\":\"nginx\"}},\"spec\":{\"containers\":[{\"image\":\"nginx\",\"name\":\"nginx\"}]}}}}\n",
+        "creationTimestamp": "2025-04-28 00:04:42 -0700 PDT",
+        "labels": "app=nginx",
+        "resourceVersion": "8282",
+        "spec.replicas": "1",
+        "spec.selector": "app=nginx",
+        "status.availableReplicas": "1",
+        "status.readyReplicas": "1",
+        "status.replicas": "1",
+        "status.updatedReplicas": "1",
+        "uid": "22990a1e-0161-4e56-8973-04bd9756b95d"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kube-root-ca.crt",
+        "namespace": "kube-node-lease",
+        "kind": "ConfigMap"
+      },
+      "properties": {
+        "annotations": "kubernetes.io/description=Contains a CA bundle that can be used to verify the kube-apiserver when using internal endpoints such as the internal service IP or kubernetes.default.svc. No other usage is guaranteed across distributions of Kubernetes clusters.",
+        "creationTimestamp": "2025-04-27 21:57:26 -0700 PDT",
+        "data.keys": "ca.crt",
+        "resourceVersion": "325",
+        "uid": "ab05d65a-eea5-46f4-b816-9e15c1c4e1de"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kube-root-ca.crt",
+        "namespace": "kube-public",
+        "kind": "ConfigMap"
+      },
+      "properties": {
+        "annotations": "kubernetes.io/description=Contains a CA bundle that can be used to verify the kube-apiserver when using internal endpoints such as the internal service IP or kubernetes.default.svc. No other usage is guaranteed across distributions of Kubernetes clusters.",
+        "creationTimestamp": "2025-04-27 21:57:26 -0700 PDT",
+        "data.keys": "ca.crt",
+        "resourceVersion": "326",
+        "uid": "4fe0ef56-8334-4c94-b117-915d6fb60b3d"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kube-apiserver-minikube",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "properties": {
+        "annotations": "kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint=192.168.49.2:8443,kubernetes.io/config.hash=d72d0a4cf4be077c9919d46b7358a5e8,kubernetes.io/config.mirror=d72d0a4cf4be077c9919d46b7358a5e8,kubernetes.io/config.seen=2025-04-28T04:57:21.476150739Z,kubernetes.io/config.source=file",
+        "creationTimestamp": "2025-04-27 21:57:21 -0700 PDT",
+        "labels": "component=kube-apiserver,tier=control-plane",
+        "resourceVersion": "7098",
+        "spec.nodeName": "minikube",
+        "status.hostIP": "192.168.49.2",
+        "status.phase": "Running",
+        "status.podIP": "192.168.49.2",
+        "status.startTime": "2025-04-27T21:57:21-07:00",
+        "uid": "6c8c39ae-2b03-4162-9b3f-a79a1b5b9f34"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kube-proxy-6jj5m",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "properties": {
+        "creationTimestamp": "2025-04-27 21:57:26 -0700 PDT",
+        "labels": "controller-revision-hash=64b9dbc74b,k8s-app=kube-proxy,pod-template-generation=1",
+        "resourceVersion": "6997",
+        "spec.nodeName": "minikube",
+        "status.hostIP": "192.168.49.2",
+        "status.phase": "Running",
+        "status.podIP": "192.168.49.2",
+        "status.startTime": "2025-04-27T21:57:26-07:00",
+        "uid": "9ceeea8a-2e47-480b-a7a6-d8ebd73f682f"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kube-scheduler-minikube",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "properties": {
+        "annotations": "kubernetes.io/config.hash=d14ce008bee3a1f3bd7cf547688f9dfe,kubernetes.io/config.mirror=d14ce008bee3a1f3bd7cf547688f9dfe,kubernetes.io/config.seen=2025-04-28T04:57:21.476151781Z,kubernetes.io/config.source=file",
+        "creationTimestamp": "2025-04-27 21:57:21 -0700 PDT",
+        "labels": "component=kube-scheduler,tier=control-plane",
+        "resourceVersion": "7100",
+        "spec.nodeName": "minikube",
+        "status.hostIP": "192.168.49.2",
+        "status.phase": "Running",
+        "status.podIP": "192.168.49.2",
+        "status.startTime": "2025-04-27T21:57:21-07:00",
+        "uid": "cd1f599b-4263-40da-9bad-3b419fe5213c"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "storage-provisioner",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "properties": {
+        "annotations": "kubectl.kubernetes.io/last-applied-configuration={\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"labels\":{\"addonmanager.kubernetes.io/mode\":\"Reconcile\",\"integration-test\":\"storage-provisioner\"},\"name\":\"storage-provisioner\",\"namespace\":\"kube-system\"},\"spec\":{\"containers\":[{\"command\":[\"/storage-provisioner\"],\"image\":\"gcr.io/k8s-minikube/storage-provisioner:v5\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"storage-provisioner\",\"volumeMounts\":[{\"mountPath\":\"/tmp\",\"name\":\"tmp\"}]}],\"hostNetwork\":true,\"serviceAccountName\":\"storage-provisioner\",\"volumes\":[{\"hostPath\":{\"path\":\"/tmp\",\"type\":\"Directory\"},\"name\":\"tmp\"}]}}\n",
+        "creationTimestamp": "2025-04-27 21:57:22 -0700 PDT",
+        "labels": "addonmanager.kubernetes.io/mode=Reconcile,integration-test=storage-provisioner",
+        "resourceVersion": "6996",
+        "spec.nodeName": "minikube",
+        "status.hostIP": "192.168.49.2",
+        "status.phase": "Running",
+        "status.podIP": "192.168.49.2",
+        "status.startTime": "2025-04-27T21:57:25-07:00",
+        "uid": "c00fecd1-4f39-435d-9f89-a5f7185701ca"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kube-root-ca.crt",
+        "namespace": "default",
+        "kind": "ConfigMap"
+      },
+      "properties": {
+        "annotations": "kubernetes.io/description=Contains a CA bundle that can be used to verify the kube-apiserver when using internal endpoints such as the internal service IP or kubernetes.default.svc. No other usage is guaranteed across distributions of Kubernetes clusters.",
+        "creationTimestamp": "2025-04-27 21:57:26 -0700 PDT",
+        "data.keys": "ca.crt",
+        "resourceVersion": "324",
+        "uid": "39f04a48-d01c-440b-b594-71bd1584ceb1"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "coredns",
+        "namespace": "kube-system",
+        "kind": "ConfigMap"
+      },
+      "properties": {
+        "creationTimestamp": "2025-04-27 21:57:21 -0700 PDT",
+        "data.keys": "Corefile",
+        "resourceVersion": "268",
+        "uid": "7d6a4592-065f-493b-9d5e-f45fae728023"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "coredns",
+        "namespace": "kube-system",
+        "kind": "Deployment"
+      },
+      "properties": {
+        "annotations": "deployment.kubernetes.io/revision=1",
+        "creationTimestamp": "2025-04-27 21:57:21 -0700 PDT",
+        "labels": "k8s-app=kube-dns",
+        "resourceVersion": "7088",
+        "spec.replicas": "1",
+        "spec.selector": "k8s-app=kube-dns",
+        "status.availableReplicas": "1",
+        "status.readyReplicas": "1",
+        "status.replicas": "1",
+        "status.updatedReplicas": "1",
+        "uid": "bca4a168-0a60-47f1-9813-f792107cb4a6"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "coredns-668d6bf9bc-jsg8h",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "properties": {
+        "creationTimestamp": "2025-04-27 21:57:27 -0700 PDT",
+        "labels": "k8s-app=kube-dns,pod-template-hash=668d6bf9bc",
+        "resourceVersion": "7084",
+        "spec.nodeName": "minikube",
+        "status.hostIP": "192.168.49.2",
+        "status.phase": "Running",
+        "status.podIP": "10.244.0.8",
+        "status.startTime": "2025-04-27T21:57:27-07:00",
+        "uid": "0444fb1c-bac9-4ff7-89c8-a67b06c92866"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "etcd-minikube",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "properties": {
+        "annotations": "kubeadm.kubernetes.io/etcd.advertise-client-urls=https://192.168.49.2:2379,kubernetes.io/config.hash=2b4b75c2a289008e0b381891e9683040,kubernetes.io/config.mirror=2b4b75c2a289008e0b381891e9683040,kubernetes.io/config.seen=2025-04-28T04:57:17.587469396Z,kubernetes.io/config.source=file",
+        "creationTimestamp": "2025-04-27 21:57:20 -0700 PDT",
+        "labels": "component=etcd,tier=control-plane",
+        "resourceVersion": "7093",
+        "spec.nodeName": "minikube",
+        "status.hostIP": "192.168.49.2",
+        "status.phase": "Running",
+        "status.podIP": "192.168.49.2",
+        "status.startTime": "2025-04-27T21:57:21-07:00",
+        "uid": "405687a3-2d71-4abf-b21c-d566196138b0"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kube-controller-manager-minikube",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "properties": {
+        "annotations": "kubernetes.io/config.seen=2025-04-28T04:57:21.476151364Z,kubernetes.io/config.source=file,kubernetes.io/config.hash=843c74f7b3bc7d7040a05c31708a6a30,kubernetes.io/config.mirror=843c74f7b3bc7d7040a05c31708a6a30",
+        "creationTimestamp": "2025-04-27 21:57:21 -0700 PDT",
+        "labels": "component=kube-controller-manager,tier=control-plane",
+        "resourceVersion": "7089",
+        "spec.nodeName": "minikube",
+        "status.hostIP": "192.168.49.2",
+        "status.phase": "Running",
+        "status.podIP": "192.168.49.2",
+        "status.startTime": "2025-04-27T21:57:21-07:00",
+        "uid": "47df1bb5-b1ca-492b-8874-e68137be00c0"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "minikube",
+        "kind": "Node"
+      },
+      "properties": {
+        "annotations": "kubeadm.alpha.kubernetes.io/cri-socket=unix:///var/run/cri-dockerd.sock,node.alpha.kubernetes.io/ttl=0,volumes.kubernetes.io/controller-managed-attach-detach=true",
+        "creationTimestamp": "2025-04-27 21:57:19 -0700 PDT",
+        "labels": "beta.kubernetes.io/arch=arm64,beta.kubernetes.io/os=linux,kubernetes.io/arch=arm64,kubernetes.io/hostname=minikube,kubernetes.io/os=linux,minikube.k8s.io/commit=dd5d320e41b5451cdf3c01891bc4e13d189586ed-dirty,minikube.k8s.io/name=minikube,minikube.k8s.io/primary=true,minikube.k8s.io/updated_at=2025_04_27T21_57_22_0700,minikube.k8s.io/version=v1.35.0,node-role.kubernetes.io/control-plane=,node.kubernetes.io/exclude-from-external-load-balancers=",
+        "resourceVersion": "8933",
+        "spec.podCIDR": "10.244.0.0/24",
+        "status.allocatable.cpu": "2",
+        "status.allocatable.memory": "2006540Ki",
+        "status.capacity.cpu": "2",
+        "status.capacity.memory": "2006540Ki",
+        "status.nodeInfo.containerRuntimeVersion": "docker://27.4.1",
+        "status.nodeInfo.kubeletVersion": "v1.32.0",
+        "status.nodeInfo.osImage": "Ubuntu 22.04.5 LTS",
+        "uid": "41a6adfe-0877-4ec0-822f-6e81eb6379bd"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "nginx-54c98b4f84",
+        "namespace": "default",
+        "kind": "ReplicaSet"
+      },
+      "properties": {
+        "annotations": "deployment.kubernetes.io/max-replicas=2,deployment.kubernetes.io/revision=2,deployment.kubernetes.io/desired-replicas=1",
+        "creationTimestamp": "2025-04-28 00:16:51 -0700 PDT",
+        "labels": "app=nginx,pod-template-hash=54c98b4f84",
+        "resourceVersion": "8281",
+        "spec.replicas": "0",
+        "spec.selector": "app=nginx,pod-template-hash=54c98b4f84",
+        "status.availableReplicas": "0",
+        "status.readyReplicas": "0",
+        "status.replicas": "0",
+        "uid": "d4dfbdc8-5f0a-4994-b8ed-a3270309d5d1"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "cluster-info",
+        "namespace": "kube-public",
+        "kind": "ConfigMap"
+      },
+      "properties": {
+        "creationTimestamp": "2025-04-27 21:57:20 -0700 PDT",
+        "data.keys": "jws-kubeconfig-ou0rxk,kubeconfig",
+        "resourceVersion": "296",
+        "uid": "36a63521-bf5d-47b5-98b2-c3f703d24d5a"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "extension-apiserver-authentication",
+        "namespace": "kube-system",
+        "kind": "ConfigMap"
+      },
+      "properties": {
+        "creationTimestamp": "2025-04-27 21:57:19 -0700 PDT",
+        "data.keys": "requestheader-group-headers,requestheader-username-headers,client-ca-file,requestheader-allowed-names,requestheader-client-ca-file,requestheader-extra-headers-prefix",
+        "resourceVersion": "18",
+        "uid": "d144c7e5-f089-4d43-89d5-d1b5281be303"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kube-root-ca.crt",
+        "namespace": "kube-system",
+        "kind": "ConfigMap"
+      },
+      "properties": {
+        "annotations": "kubernetes.io/description=Contains a CA bundle that can be used to verify the kube-apiserver when using internal endpoints such as the internal service IP or kubernetes.default.svc. No other usage is guaranteed across distributions of Kubernetes clusters.",
+        "creationTimestamp": "2025-04-27 21:57:26 -0700 PDT",
+        "data.keys": "ca.crt",
+        "resourceVersion": "323",
+        "uid": "572f98de-a5cf-4bd3-b30c-714e4b6d6608"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kubelet-config",
+        "namespace": "kube-system",
+        "kind": "ConfigMap"
+      },
+      "properties": {
+        "creationTimestamp": "2025-04-27 21:57:20 -0700 PDT",
+        "data.keys": "kubelet",
+        "resourceVersion": "205",
+        "uid": "0e0e9419-9877-45ef-9103-f6d939467447"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "coredns-668d6bf9bc",
+        "namespace": "kube-system",
+        "kind": "ReplicaSet"
+      },
+      "properties": {
+        "annotations": "deployment.kubernetes.io/desired-replicas=1,deployment.kubernetes.io/max-replicas=2,deployment.kubernetes.io/revision=1",
+        "creationTimestamp": "2025-04-27 21:57:26 -0700 PDT",
+        "labels": "k8s-app=kube-dns,pod-template-hash=668d6bf9bc",
+        "resourceVersion": "7087",
+        "spec.replicas": "1",
+        "spec.selector": "k8s-app=kube-dns,pod-template-hash=668d6bf9bc",
+        "status.availableReplicas": "1",
+        "status.readyReplicas": "1",
+        "status.replicas": "1",
+        "uid": "7895b3ec-ebeb-40f5-a734-ca73ffb25c1a"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "nginx-5869d7778c-rgrg7",
+        "namespace": "default",
+        "kind": "Pod"
+      },
+      "properties": {
+        "creationTimestamp": "2025-04-28 00:35:29 -0700 PDT",
+        "labels": "app=nginx,pod-template-hash=5869d7778c",
+        "resourceVersion": "8267",
+        "spec.nodeName": "minikube",
+        "status.hostIP": "192.168.49.2",
+        "status.phase": "Running",
+        "status.podIP": "10.244.0.11",
+        "status.startTime": "2025-04-28T00:35:29-07:00",
+        "uid": "16c40979-5f48-484c-8816-832a5b3e0f4d"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kubernetes",
+        "namespace": "default",
+        "kind": "Service"
+      },
+      "properties": {
+        "creationTimestamp": "2025-04-27 21:57:20 -0700 PDT",
+        "labels": "component=apiserver,provider=kubernetes",
+        "resourceVersion": "196",
+        "spec.clusterIP": "10.96.0.1",
+        "spec.clusterIPs": "10.96.0.1",
+        "spec.type": "ClusterIP",
+        "uid": "18eb1eb0-2f08-41f0-bc46-80110e54fa63"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "nginx",
+        "namespace": "default",
+        "kind": "Service"
+      },
+      "properties": {
+        "annotations": "kubectl.kubernetes.io/last-applied-configuration={\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"nginx\",\"namespace\":\"default\"},\"spec\":{\"ports\":[{\"port\":80,\"targetPort\":80}],\"selector\":{\"app\":\"nginx\"}}}\n",
+        "creationTimestamp": "2025-04-28 00:04:47 -0700 PDT",
+        "labels": "app=nginx",
+        "resourceVersion": "7332",
+        "spec.clusterIP": "10.101.246.31",
+        "spec.clusterIPs": "10.101.246.31",
+        "spec.selector": "app=nginx",
+        "spec.type": "ClusterIP",
+        "uid": "0c823c24-3f5d-4b6e-a421-c90e7be130ec"
+      },
+      "revision": 2
+    },
+    {
+      "key": {
+        "name": "kube-dns",
+        "namespace": "kube-system",
+        "kind": "Service"
+      },
+      "properties": {
+        "annotations": "prometheus.io/port=9153,prometheus.io/scrape=true",
+        "creationTimestamp": "2025-04-27 21:57:21 -0700 PDT",
+        "labels": "k8s-app=kube-dns,kubernetes.io/cluster-service=true,kubernetes.io/name=CoreDNS",
+        "resourceVersion": "244",
+        "spec.clusterIP": "10.96.0.10",
+        "spec.clusterIPs": "10.96.0.10",
+        "spec.selector": "k8s-app=kube-dns",
+        "spec.type": "ClusterIP",
+        "uid": "b52f0cd4-d8b5-4dea-860b-02d47370aa55"
+      },
+      "revision": 2
+    }
+  ],
+  "relationships": [
+    {
+      "source": {
+        "name": "nginx-5869d7778c",
+        "namespace": "default",
+        "kind": "ReplicaSet"
+      },
+      "target": {
+        "name": "nginx",
+        "namespace": "default",
+        "kind": "Deployment"
+      },
+      "relationshipType": "OWNED_BY",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "kube-apiserver-minikube",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "target": {
+        "name": "minikube",
+        "kind": "Node"
+      },
+      "relationshipType": "SCHEDULED_ON",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "kube-proxy-6jj5m",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "target": {
+        "name": "minikube",
+        "kind": "Node"
+      },
+      "relationshipType": "SCHEDULED_ON",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "kube-proxy-6jj5m",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "target": {
+        "name": "kube-proxy",
+        "namespace": "kube-system",
+        "kind": "ConfigMap"
+      },
+      "relationshipType": "MOUNTS",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "kube-scheduler-minikube",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "target": {
+        "name": "minikube",
+        "kind": "Node"
+      },
+      "relationshipType": "SCHEDULED_ON",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "storage-provisioner",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "target": {
+        "name": "minikube",
+        "kind": "Node"
+      },
+      "relationshipType": "SCHEDULED_ON",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "coredns-668d6bf9bc-jsg8h",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "target": {
+        "name": "coredns-668d6bf9bc",
+        "namespace": "kube-system",
+        "kind": "ReplicaSet"
+      },
+      "relationshipType": "OWNED_BY",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "coredns-668d6bf9bc-jsg8h",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "target": {
+        "name": "minikube",
+        "kind": "Node"
+      },
+      "relationshipType": "SCHEDULED_ON",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "coredns-668d6bf9bc-jsg8h",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "target": {
+        "name": "coredns",
+        "namespace": "kube-system",
+        "kind": "ConfigMap"
+      },
+      "relationshipType": "MOUNTS",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "etcd-minikube",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "target": {
+        "name": "minikube",
+        "kind": "Node"
+      },
+      "relationshipType": "SCHEDULED_ON",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "kube-controller-manager-minikube",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "target": {
+        "name": "minikube",
+        "kind": "Node"
+      },
+      "relationshipType": "SCHEDULED_ON",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "nginx-54c98b4f84",
+        "namespace": "default",
+        "kind": "ReplicaSet"
+      },
+      "target": {
+        "name": "nginx",
+        "namespace": "default",
+        "kind": "Deployment"
+      },
+      "relationshipType": "OWNED_BY",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "coredns-668d6bf9bc",
+        "namespace": "kube-system",
+        "kind": "ReplicaSet"
+      },
+      "target": {
+        "name": "coredns",
+        "namespace": "kube-system",
+        "kind": "Deployment"
+      },
+      "relationshipType": "OWNED_BY",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "nginx-5869d7778c-rgrg7",
+        "namespace": "default",
+        "kind": "Pod"
+      },
+      "target": {
+        "name": "nginx-5869d7778c",
+        "namespace": "default",
+        "kind": "ReplicaSet"
+      },
+      "relationshipType": "OWNED_BY",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "nginx-5869d7778c-rgrg7",
+        "namespace": "default",
+        "kind": "Pod"
+      },
+      "target": {
+        "name": "minikube",
+        "kind": "Node"
+      },
+      "relationshipType": "SCHEDULED_ON",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "nginx",
+        "namespace": "default",
+        "kind": "Service"
+      },
+      "target": {
+        "name": "nginx-5869d7778c-rgrg7",
+        "namespace": "default",
+        "kind": "Pod"
+      },
+      "relationshipType": "SELECTS",
+      "revision": 2
+    },
+    {
+      "source": {
+        "name": "kube-dns",
+        "namespace": "kube-system",
+        "kind": "Service"
+      },
+      "target": {
+        "name": "coredns-668d6bf9bc-jsg8h",
+        "namespace": "kube-system",
+        "kind": "Pod"
+      },
+      "relationshipType": "SELECTS",
+      "revision": 2
+    }
+  ],
+  "graphRevision": 2
+}
