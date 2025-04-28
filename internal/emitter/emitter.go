@@ -1,4 +1,4 @@
-package main
+package emitter
 
 import (
 	"encoding/json"
@@ -7,18 +7,20 @@ import (
 	"path/filepath"
 	"time"
 
+	"satellite/internal/graph"
+
 	log "github.com/sirupsen/logrus"
 )
 
 // marshals the graph to JSON and writes it atomically to a timestamped file
 // in the specified output directory.
-func EmitGraph(graph Graph, outputDir string) error {
+func EmitGraph(g graph.Graph, outputDir string) error {
 	err := os.MkdirAll(outputDir, 0755)
 	if err != nil {
 		return fmt.Errorf("failed to create output directory %s: %w", outputDir, err)
 	}
 
-	jsonData, err := json.MarshalIndent(graph, "", "  ") // Use MarshalIndent for readability
+	jsonData, err := json.MarshalIndent(g, "", "  ") // Use MarshalIndent for readability
 	if err != nil {
 		return fmt.Errorf("failed to marshal graph to JSON: %w", err)
 	}
@@ -56,6 +58,6 @@ func EmitGraph(graph Graph, outputDir string) error {
 	}
 
 	tempFile = nil
-	log.Infof("Successfully emitted graph revision %d to %s", graph.GraphRevision, finalFilename)
+	log.Infof("Successfully emitted graph revision %d to %s", g.GraphRevision, finalFilename)
 	return nil
 }

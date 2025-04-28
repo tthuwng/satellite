@@ -4,64 +4,22 @@ import (
 	"flag"
 	"os"
 	"os/signal"
+	"satellite/internal/cache"
+	"satellite/internal/emitter"
+	"satellite/internal/graph"
 	"sync"
 	"syscall"
 
 	log "github.com/sirupsen/logrus"
 
-	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
-	cache "k8s.io/client-go/tools/cache"
+	cachepkg "k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 var currentGraphRevision uint64 = 0
 var revisionMu sync.Mutex
-
-func getObjectMeta(obj interface{}) metav1.ObjectMeta {
-	switch o := obj.(type) {
-	case *corev1.Pod:
-		return o.ObjectMeta
-	case *appsv1.ReplicaSet:
-		return o.ObjectMeta
-	case *appsv1.Deployment:
-		return o.ObjectMeta
-	case *corev1.Node:
-		return o.ObjectMeta
-	case *corev1.Service:
-		return o.ObjectMeta
-	case *corev1.ConfigMap:
-		return o.ObjectMeta
-	case cache.DeletedFinalStateUnknown:
-		if o.Obj != nil {
-			switch o2 := o.Obj.(type) {
-			case *corev1.Pod:
-				return o2.ObjectMeta
-			case *appsv1.ReplicaSet:
-				return o2.ObjectMeta
-			case *appsv1.Deployment:
-				return o2.ObjectMeta
-			case *corev1.Node:
-				return o2.ObjectMeta
-			case *corev1.Service:
-				return o2.ObjectMeta
-			case *corev1.ConfigMap:
-				return o2.ObjectMeta
-			default:
-				log.Printf("Unknown tombstone object type: %T", o.Obj)
-				return metav1.ObjectMeta{}
-			}
-		}
-		log.Printf("Tombstone object is nil")
-		return metav1.ObjectMeta{}
-	default:
-		log.Printf("Unknown object type: %T", obj)
-		return metav1.ObjectMeta{}
-	}
-}
 
 func main() {
 	// --- CLI Flags ---
@@ -96,7 +54,7 @@ func main() {
 
 	// --- Informers & Cache Setup ---
 	factory := informers.NewSharedInformerFactory(client, 0)
-	resourceCache := NewResourceCache()
+	resourceCache := cache.NewResourceCache()
 	podInf := factory.Core().V1().Pods().Informer()
 	podInf.AddEventHandler(resourceCache.AddEventHandler("Pod"))
 	rsInf := factory.Apps().V1().ReplicaSets().Informer()
@@ -127,7 +85,7 @@ func main() {
 
 	// --- Wait for Sync ---
 	log.Info("Waiting for initial cache sync...")
-	if !cache.WaitForCacheSync(stopCh,
+	if !cachepkg.WaitForCacheSync(stopCh,
 		podInf.HasSynced,
 		rsInf.HasSynced,
 		deployInf.HasSynced,
@@ -150,9 +108,9 @@ Loop:
 			revisionMu.Unlock()
 
 			log.Debugf("Cache changed: Building graph revision %d", graphRevision)
-			graph := BuildGraph(resourceCache, graphRevision)
+			graphData := graph.BuildGraph(resourceCache, graphRevision)
 
-			if err := EmitGraph(graph, *outputDir); err != nil {
+			if err := emitter.EmitGraph(graphData, *outputDir); err != nil {
 				log.Errorf("Error emitting graph revision %d: %v", graphRevision, err)
 			}
 
@@ -168,8 +126,8 @@ Loop:
 	finalGraphRevision := currentGraphRevision
 	revisionMu.Unlock()
 
-	finalGraph := BuildGraph(resourceCache, finalGraphRevision)
-	if err := EmitGraph(finalGraph, *outputDir); err != nil {
+	finalGraphData := graph.BuildGraph(resourceCache, finalGraphRevision)
+	if err := emitter.EmitGraph(finalGraphData, *outputDir); err != nil {
 		log.Errorf("Error emitting final graph revision %d: %v", finalGraphRevision, err)
 	}
 

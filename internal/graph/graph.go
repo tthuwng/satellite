@@ -1,4 +1,4 @@
-package main
+package graph
 
 import (
 	"fmt"
@@ -10,22 +10,26 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
+
+	"satellite/internal/cache"
+	"satellite/internal/k8s"
 )
 
+// Exported GraphEntityKey
 type GraphEntityKey struct {
 	Name      string `json:"name"`
 	Namespace string `json:"namespace,omitempty"`
 	Kind      string `json:"kind"`
 }
 
-// represents a resource in the graph.
+// Exported GraphNode
 type GraphNode struct {
 	Key        GraphEntityKey    `json:"key"`
 	Properties map[string]string `json:"properties"`
 	Revision   uint64            `json:"revision"`
 }
 
-// represents a connection between two resources.
+// Exported GraphRelationship
 type GraphRelationship struct {
 	Source           GraphEntityKey    `json:"source"`
 	Target           GraphEntityKey    `json:"target"`
@@ -34,26 +38,26 @@ type GraphRelationship struct {
 	Revision         uint64            `json:"revision"`
 }
 
-// represents the overall structure of nodes and relationships.
+// Exported Graph
 type Graph struct {
 	Nodes         []GraphNode         `json:"nodes"`
 	Relationships []GraphRelationship `json:"relationships"`
 	GraphRevision uint64              `json:"graphRevision"`
 }
 
-// constructs the graph representation from the current cache state.
-func BuildGraph(cache *ResourceCache, currentGraphRevision uint64) Graph {
+// Exported BuildGraph
+func BuildGraph(resourceCache *cache.ResourceCache, currentGraphRevision uint64) Graph {
 	graph := Graph{
 		Nodes:         make([]GraphNode, 0),
 		Relationships: make([]GraphRelationship, 0),
 		GraphRevision: currentGraphRevision,
 	}
 
-	objects := cache.List()
+	objects := resourceCache.List()
 
 	// --- Node building ---
 	for _, obj := range objects {
-		key, ok := getKey(obj)
+		key, ok := k8s.GetKey(obj)
 		if !ok {
 			log.Warnf("BuildGraph: Skipping object, could not get key for %T", obj)
 			continue
@@ -80,14 +84,14 @@ func BuildGraph(cache *ResourceCache, currentGraphRevision uint64) Graph {
 	podMap := make(map[GraphEntityKey]*corev1.Pod)
 	for _, obj := range objects {
 		if pod, ok := obj.(*corev1.Pod); ok {
-			key, _ := getKey(pod)
+			key, _ := k8s.GetKey(pod)
 			graphKey := GraphEntityKey{Name: key.Name, Namespace: key.Namespace, Kind: key.Kind}
 			podMap[graphKey] = pod
 		}
 	}
 
 	for _, obj := range objects {
-		sourceKey, ok := getKey(obj)
+		sourceKey, ok := k8s.GetKey(obj)
 		if !ok {
 			continue
 		}
@@ -196,7 +200,7 @@ func BuildGraph(cache *ResourceCache, currentGraphRevision uint64) Graph {
 // converts relevant fields from a runtime.Object into a flat map.
 func extractProperties(obj runtime.Object) map[string]string {
 	props := make(map[string]string)
-	meta := getObjectMeta(obj) // Assumes getObjectMeta handles tombstones
+	meta := k8s.GetObjectMeta(obj)
 
 	// common properties
 	props["uid"] = string(meta.UID)
