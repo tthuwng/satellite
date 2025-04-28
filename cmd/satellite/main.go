@@ -102,6 +102,7 @@ Loop:
 	for {
 		select {
 		case <-resourceCache.Changed():
+			drain(resourceCache.Changed())
 			revisionMu.Lock()
 			currentGraphRevision++
 			graphRevision := currentGraphRevision
@@ -132,4 +133,13 @@ Loop:
 	}
 
 	log.Info("Shutdown complete.")
+}
+func drain(ch <-chan struct{}) {
+	for {
+		select {
+		case <-ch:
+		default:
+			return
+		}
+	}
 }

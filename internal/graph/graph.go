@@ -3,11 +3,13 @@ package graph
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 
@@ -197,6 +199,20 @@ func BuildGraph(resourceCache *cache.ResourceCache, currentGraphRevision uint64)
 	return graph
 }
 
+func int32PtrToString(ptr *int32) string {
+	if ptr == nil {
+		return ""
+	}
+	return fmt.Sprintf("%d", *ptr)
+}
+
+func timePtrToString(ptr *metav1.Time) string {
+	if ptr == nil {
+		return ""
+	}
+	return ptr.Format(time.RFC3339)
+}
+
 // converts relevant fields from a runtime.Object into a flat map.
 func extractProperties(obj runtime.Object) map[string]string {
 	props := make(map[string]string)
@@ -220,31 +236,33 @@ func extractProperties(obj runtime.Object) map[string]string {
 	// type-specific properties
 	switch o := obj.(type) {
 	case *corev1.Pod:
-		props["spec.nodeName"] = o.Spec.NodeName
 		props["status.phase"] = string(o.Status.Phase)
-		props["status.hostIP"] = o.Status.HostIP
+		props["spec.nodeName"] = o.Spec.NodeName
 		props["status.podIP"] = o.Status.PodIP
-		if o.Status.StartTime != nil {
-			props["status.startTime"] = o.Status.StartTime.String()
-		}
+		props["status.hostIP"] = o.Status.HostIP
+		props["status.startTime"] = timePtrToString(o.Status.StartTime)
 
 	case *appsv1.ReplicaSet:
-		props["spec.replicas"] = fmt.Sprintf("%d", *o.Spec.Replicas)
+		props["spec.replicas"] = int32PtrToString(o.Spec.Replicas)
 		props["status.replicas"] = fmt.Sprintf("%d", o.Status.Replicas)
 		props["status.readyReplicas"] = fmt.Sprintf("%d", o.Status.ReadyReplicas)
 		props["status.availableReplicas"] = fmt.Sprintf("%d", o.Status.AvailableReplicas)
 		if o.Spec.Selector != nil {
 			props["spec.selector"] = labels.SelectorFromSet(o.Spec.Selector.MatchLabels).String()
+		} else {
+			props["spec.selector"] = ""
 		}
 
 	case *appsv1.Deployment:
-		props["spec.replicas"] = fmt.Sprintf("%d", *o.Spec.Replicas)
+		props["spec.replicas"] = int32PtrToString(o.Spec.Replicas)
 		props["status.replicas"] = fmt.Sprintf("%d", o.Status.Replicas)
 		props["status.updatedReplicas"] = fmt.Sprintf("%d", o.Status.UpdatedReplicas)
 		props["status.readyReplicas"] = fmt.Sprintf("%d", o.Status.ReadyReplicas)
 		props["status.availableReplicas"] = fmt.Sprintf("%d", o.Status.AvailableReplicas)
 		if o.Spec.Selector != nil {
 			props["spec.selector"] = labels.SelectorFromSet(o.Spec.Selector.MatchLabels).String()
+		} else {
+			props["spec.selector"] = ""
 		}
 
 	case *corev1.Node:
