@@ -24,10 +24,10 @@
         -   [x] Pod -> Node (`spec.nodeName`).
         -   [x] Service -> Pod (label selectors).
         -   [x] Pod -> ConfigMap (`volumes`).
--   [ ] **3.6 Revision logic:**
-    -   [ ] Add a global `revision` counter (`uint64`).
-    -   [ ] Increment `revision` on every cache change.
-    -   [ ] Stamp `revision` on nodes/relationships affected by the change (or simply on the whole graph for simplicity initially).
+-   [x] **3.6 Revision logic:**
+    -   [x] Add a global `revision` counter (`uint64`).
+    -   [x] Increment `revision` on every cache change.
+    -   [x] Stamp `revision` on nodes/relationships affected by the change (or simply on the whole graph for simplicity initially). // Stamping whole graph
 -   [ ] **3.7 Emit:**
     -   [ ] Implement JSON marshaling (consider `jsoniter`).
     -   [ ] Implement file writing logic:
