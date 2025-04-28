@@ -1,4 +1,4 @@
-.PHONY: run test clean fmt vet build all test-verbose
+.PHONY: run test clean fmt vet build all test-verbose viz smoke-test
 
 BINARY_NAME=satellite
 
@@ -24,3 +24,9 @@ clean:
 
 test-verbose:
 	go test -v ./...
+
+viz:
+	./viz.sh
+
+smoke-test:
+	./smoke_test.sh

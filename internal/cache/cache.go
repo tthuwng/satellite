@@ -33,17 +33,33 @@ func (c *ResourceCache) Changed() <-chan struct{} {
 
 // Upsert adds or updates an object in the cache.
 func (c *ResourceCache) Upsert(obj runtime.Object) {
-	key, ok := k8s.GetKey(obj) // Use k8s.GetKey
+	key, ok := k8s.GetKey(obj)
 	if !ok {
 		return
 	}
 
-	c.mu.Lock()
-	log.Debugf("Cache Upsert: %s %s/%s", key.Kind, key.Namespace, key.Name) // Debug level
-	c.store[key] = obj
-	c.mu.Unlock()
+	newMeta := k8s.GetObjectMeta(obj)
 
-	c.signalChange()
+	c.mu.Lock()
+	oldObj, exists := c.store[key]
+
+	shouldUpdate := true
+	if exists {
+		oldMeta := k8s.GetObjectMeta(oldObj)
+		if oldMeta.ResourceVersion == newMeta.ResourceVersion {
+			shouldUpdate = false
+			log.Tracef("Cache Upsert Skipped (same ResourceVersion): %s %s/%s V:%s", key.Kind, key.Namespace, key.Name, newMeta.ResourceVersion) // Trace level
+		}
+	}
+
+	if shouldUpdate {
+		log.Debugf("Cache Upsert: %s %s/%s V:%s", key.Kind, key.Namespace, key.Name, newMeta.ResourceVersion)
+		c.store[key] = obj
+		c.mu.Unlock()
+		c.signalChange()
+	} else {
+		c.mu.Unlock()
+	}
 }
 
 // Delete removes an object from the cache.

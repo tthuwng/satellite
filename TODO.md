@@ -14,6 +14,7 @@
     -   [x] Implement a cache map (`map[EntityKey]SimplifiedObject`). // Storing runtime.Object for now
     -   [x] Define `SimplifiedObject` struct containing only necessary metadata (e.g., `ObjectMeta`, relevant spec/status fields). // Deferred this, storing full object
     -   [x] Implement logic to process `updatesCh` and update the cache. // Handlers update cache directly
+    -   [x] // Cache noise reduced by checking ResourceVersion on Upsert
 -   [x] **3.5 Graph builder:**
     -   [x] Define `Graph`, `GraphNode`, `GraphRelationship` structs matching the spec.
     -   [x] Implement function `BuildGraph(cache map[EntityKey]SimplifiedObject) Graph`. // Skeleton + basic node creation
@@ -26,7 +27,7 @@
         -   [x] Pod -> ConfigMap (`volumes`).
 -   [x] **3.6 Revision logic:**
     -   [x] Add a global `revision` counter (`uint64`).
-    -   [x] Increment `revision` on every cache change.
+    -   [x] Increment `revision` on every cache change. // More accurate now due to cache noise reduction
     -   [x] Stamp `revision` on nodes/relationships affected by the change (or simply on the whole graph for simplicity initially). // Stamping whole graph
 -   [x] **3.7 Emit:**
     -   [x] Implement JSON marshaling (consider `jsoniter`). // using standard json for now
@@ -49,15 +50,15 @@
 
 ## Phase 3: Testing (Step 4)
 
--   [x] **4.1 Set up Minikube:** Have a local cluster running.
--   [x] **4.2 Run Satellite:** Test basic execution and file output.
--   [ ] **4.3 Mutation smoke-tests:**
+-   [ ] **4.1 Set up Minikube:** Have a local cluster running.
+-   [ ] **4.2 Run Satellite:** Test basic execution and file output.
+-   [x] **4.3 Mutation smoke-tests:** // Decided to keep as manual process for now
     -   [ ] Test scaling a Deployment.
     -   [ ] Test deleting a Service.
     -   [ ] Test creating/mounting a ConfigMap.
     -   [ ] Verify graph updates and revision increments for each mutation.
 -   [x] **4.4 Unit tests:**
-    -   [ ] Set up fake client (`k8s.io/client-go/kubernetes/fake`).
+    -   [x] Set up fake client (`k8s.io/client-go/kubernetes/fake`). // Done in tests/main_test.go
     -   [x] Write unit tests for graph builder logic (especially relationship rules).
     -   [ ] Write table-driven tests for relationship derivations.
 
