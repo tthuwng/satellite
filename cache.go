@@ -6,8 +6,6 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-
-	// metav1 "k8s.io/apimachinery/pkg/apis/meta/v1" // Removed unused import
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/cache"
 )
@@ -21,15 +19,21 @@ type EntityKey struct {
 // holds the state of observed Kubernetes resources.
 // safe for concurrent use.
 type ResourceCache struct {
-	store map[EntityKey]runtime.Object
-	mu    sync.RWMutex
+	store     map[EntityKey]runtime.Object
+	mu        sync.RWMutex
+	changedCh chan struct{}
 }
 
 // creates a new empty cache.
 func NewResourceCache() *ResourceCache {
 	return &ResourceCache{
-		store: make(map[EntityKey]runtime.Object),
+		store:     make(map[EntityKey]runtime.Object),
+		changedCh: make(chan struct{}, 1), // enough to signal change
 	}
+}
+
+func (c *ResourceCache) Changed() <-chan struct{} {
+	return c.changedCh
 }
 
 // extracts the EntityKey from a Kubernetes object.
@@ -84,10 +88,10 @@ func (c *ResourceCache) Upsert(obj runtime.Object) {
 	}
 
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	log.Printf("Cache Upsert: %s %s/%s\n", key.Kind, key.Namespace, key.Name)
 	c.store[key] = obj
+	c.mu.Unlock()
+	c.signalChange()
 }
 
 // deletes an object from the cache.
@@ -117,10 +121,23 @@ func (c *ResourceCache) Delete(obj interface{}) { // accepts interface{} to hand
 	}
 
 	c.mu.Lock()
-	defer c.mu.Unlock()
+	_, exists := c.store[key]
+	if exists {
+		log.Printf("Cache Delete: %s %s/%s\n", key.Kind, key.Namespace, key.Name)
+		delete(c.store, key)
+		c.mu.Unlock()
+		c.signalChange()
+	} else {
+		c.mu.Unlock()
+	}
+}
 
-	log.Printf("Cache Delete: %s %s/%s\n", key.Kind, key.Namespace, key.Name)
-	delete(c.store, key)
+// sends a non-blocking signal to changedCh.
+func (c *ResourceCache) signalChange() {
+	select {
+	case c.changedCh <- struct{}{}:
+	default:
+	}
 }
 
 // retrieves an object by key.

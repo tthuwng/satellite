@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -191,22 +193,87 @@ func BuildGraph(cache *ResourceCache, currentGraphRevision uint64) Graph {
 }
 
 // converts relevant fields from a runtime.Object into a flat map.
-// TODO: Implement actual property extraction for each resource type.
 func extractProperties(obj runtime.Object) map[string]string {
 	props := make(map[string]string)
-	meta := getObjectMeta(obj)
+	meta := getObjectMeta(obj) // Assumes getObjectMeta handles tombstones
 
+	// common properties
 	props["uid"] = string(meta.UID)
 	props["resourceVersion"] = meta.ResourceVersion
 	props["creationTimestamp"] = meta.CreationTimestamp.String()
+	if len(meta.Labels) > 0 {
+		props["labels"] = labels.Set(meta.Labels).String()
+	}
+	if len(meta.Annotations) > 0 {
+		annoStrings := []string{}
+		for k, v := range meta.Annotations {
+			annoStrings = append(annoStrings, fmt.Sprintf("%s=%s", k, v))
+		}
+		props["annotations"] = strings.Join(annoStrings, ",")
+	}
 
-	// TODO: Add type-specific properties
-	// switch o := obj.(type) {
-	// case *corev1.Pod:
-	//  props["status.phase"] = string(o.Status.Phase)
-	//  props["spec.nodeName"] = o.Spec.NodeName
-	// ... etc
-	// }
+	// type-specific properties
+	switch o := obj.(type) {
+	case *corev1.Pod:
+		props["spec.nodeName"] = o.Spec.NodeName
+		props["status.phase"] = string(o.Status.Phase)
+		props["status.hostIP"] = o.Status.HostIP
+		props["status.podIP"] = o.Status.PodIP
+		if o.Status.StartTime != nil {
+			props["status.startTime"] = o.Status.StartTime.String()
+		}
+
+	case *appsv1.ReplicaSet:
+		props["spec.replicas"] = fmt.Sprintf("%d", *o.Spec.Replicas)
+		props["status.replicas"] = fmt.Sprintf("%d", o.Status.Replicas)
+		props["status.readyReplicas"] = fmt.Sprintf("%d", o.Status.ReadyReplicas)
+		props["status.availableReplicas"] = fmt.Sprintf("%d", o.Status.AvailableReplicas)
+		if o.Spec.Selector != nil {
+			props["spec.selector"] = labels.SelectorFromSet(o.Spec.Selector.MatchLabels).String()
+		}
+
+	case *appsv1.Deployment:
+		props["spec.replicas"] = fmt.Sprintf("%d", *o.Spec.Replicas)
+		props["status.replicas"] = fmt.Sprintf("%d", o.Status.Replicas)
+		props["status.updatedReplicas"] = fmt.Sprintf("%d", o.Status.UpdatedReplicas)
+		props["status.readyReplicas"] = fmt.Sprintf("%d", o.Status.ReadyReplicas)
+		props["status.availableReplicas"] = fmt.Sprintf("%d", o.Status.AvailableReplicas)
+		if o.Spec.Selector != nil {
+			props["spec.selector"] = labels.SelectorFromSet(o.Spec.Selector.MatchLabels).String()
+		}
+
+	case *corev1.Node:
+		props["spec.podCIDR"] = o.Spec.PodCIDR
+		props["status.capacity.cpu"] = o.Status.Capacity.Cpu().String()
+		props["status.capacity.memory"] = o.Status.Capacity.Memory().String()
+		props["status.allocatable.cpu"] = o.Status.Allocatable.Cpu().String()
+		props["status.allocatable.memory"] = o.Status.Allocatable.Memory().String()
+		props["status.nodeInfo.kubeletVersion"] = o.Status.NodeInfo.KubeletVersion
+		props["status.nodeInfo.osImage"] = o.Status.NodeInfo.OSImage
+		props["status.nodeInfo.containerRuntimeVersion"] = o.Status.NodeInfo.ContainerRuntimeVersion
+
+	case *corev1.Service:
+		props["spec.type"] = string(o.Spec.Type)
+		props["spec.clusterIP"] = o.Spec.ClusterIP
+		if len(o.Spec.ClusterIPs) > 0 {
+			props["spec.clusterIPs"] = strings.Join(o.Spec.ClusterIPs, ",")
+		}
+		if o.Spec.Selector != nil {
+			props["spec.selector"] = labels.Set(o.Spec.Selector).String()
+		}
+
+	case *corev1.ConfigMap:
+		if len(o.Data) > 0 {
+			keys := make([]string, 0, len(o.Data))
+			for k := range o.Data {
+				keys = append(keys, k)
+			}
+			props["data.keys"] = strings.Join(keys, ",")
+		}
+
+	default:
+		log.Printf("extractProperties: Unhandled type %T", obj)
+	}
 
 	return props
 }
