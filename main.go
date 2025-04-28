@@ -2,7 +2,6 @@ package main
 
 import (
     "context"
-    "fmt"
     "log"
     "os"
     "os/signal"
@@ -10,12 +9,49 @@ import (
 
     appsv1 "k8s.io/api/apps/v1"
     corev1 "k8s.io/api/core/v1"
+    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
     "k8s.io/apimachinery/pkg/runtime"
     "k8s.io/client-go/informers"
     "k8s.io/client-go/kubernetes"
     "k8s.io/client-go/tools/cache"
     "k8s.io/client-go/tools/clientcmd"
 )
+
+func getObjectMeta(obj interface{}) metav1.ObjectMeta {
+    switch o := obj.(type) {
+    case *corev1.Pod:
+        return o.ObjectMeta
+    case *appsv1.ReplicaSet:
+        return o.ObjectMeta
+    case *appsv1.Deployment:
+        return o.ObjectMeta
+    case *corev1.Node:
+        return o.ObjectMeta
+    case *corev1.Service:
+        return o.ObjectMeta
+    case *corev1.ConfigMap:
+        return o.ObjectMeta
+    case cache.DeletedFinalStateUnknown:
+        if o.Obj != nil {
+            switch o2 := o.Obj.(type) {
+            case *corev1.Pod: return o2.ObjectMeta
+            case *appsv1.ReplicaSet: return o2.ObjectMeta
+            case *appsv1.Deployment: return o2.ObjectMeta
+            case *corev1.Node: return o2.ObjectMeta
+            case *corev1.Service: return o2.ObjectMeta
+            case *corev1.ConfigMap: return o2.ObjectMeta
+            default:
+                log.Printf("Unknown tombstone object type: %T", o.Obj)
+                return metav1.ObjectMeta{}
+            }
+        }
+        log.Printf("Tombstone object is nil")
+        return metav1.ObjectMeta{}
+    default:
+        log.Printf("Unknown object type: %T", obj)
+        return metav1.ObjectMeta{}
+    }
+}
 
 func main() {
     cfg, err := clientcmd.BuildConfigFromFlags("", clientcmd.RecommendedHomeFile)
@@ -30,7 +66,7 @@ func main() {
 
     factory := informers.NewSharedInformerFactory(client, 0)
 
-    updatesCh := make(chan runtime.Object, 100) // Buffered channel
+    updatesCh := make(chan runtime.Object, 100)
 
     newEventHandler := func(resourceType string) cache.ResourceEventHandlerFuncs {
         return cache.ResourceEventHandlerFuncs{
@@ -59,28 +95,6 @@ func main() {
                 log.Printf("DELETE %s: %s\n", resourceType, getObjectMeta(robj).Name)
                 updatesCh <- robj
             },
-        }
-    }
-
-    getObjectMeta := func(obj interface{}) metav1.ObjectMeta {
-        switch o := obj.(type) {
-        case *corev1.Pod: return o.ObjectMeta
-        case *appsv1.ReplicaSet: return o.ObjectMeta
-        case *appsv1.Deployment: return o.ObjectMeta
-        case *corev1.Node: return o.ObjectMeta
-        case *corev1.Service: return o.ObjectMeta
-        case *corev1.ConfigMap: return o.ObjectMeta
-        case cache.DeletedFinalStateUnknown:
-            switch o2 := o.Obj.(type) {
-                case *corev1.Pod: return o2.ObjectMeta
-                case *appsv1.ReplicaSet: return o2.ObjectMeta
-                case *appsv1.Deployment: return o2.ObjectMeta
-                case *corev1.Node: return o2.ObjectMeta
-                case *corev1.Service: return o2.ObjectMeta
-                case *corev1.ConfigMap: return o2.ObjectMeta
-                default: log.Printf("Unknown tombstone object type: %T", o.Obj); return metav1.ObjectMeta{}
-            }
-        default: log.Printf("Unknown object type: %T", obj); return metav1.ObjectMeta{}
         }
     }
 
