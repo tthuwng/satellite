@@ -53,6 +53,39 @@ func getObjectMeta(obj interface{}) metav1.ObjectMeta {
     }
 }
 
+func newEventHandler(resourceType string, ch chan<- runtime.Object) cache.ResourceEventHandlerFuncs {
+    return cache.ResourceEventHandlerFuncs{
+        AddFunc: func(obj interface{}) {
+            meta := getObjectMeta(obj)
+            log.Printf("ADD %s: %s/%s\n", resourceType, meta.Namespace, meta.Name)
+            ch <- obj.(runtime.Object)
+        },
+        UpdateFunc: func(oldObj, newObj interface{}) {
+            meta := getObjectMeta(newObj)
+            log.Printf("UPDATE %s: %s/%s\n", resourceType, meta.Namespace, meta.Name)
+            ch <- newObj.(runtime.Object)
+        },
+        DeleteFunc: func(obj interface{}) {
+            robj, ok := obj.(runtime.Object)
+            if !ok {
+                tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
+                if !ok {
+                    log.Printf("Error decoding deleted object, invalid type: %T\n", obj)
+                    return
+                }
+                robj, ok = tombstone.Obj.(runtime.Object)
+                if !ok {
+                    log.Printf("Error decoding deleted object tombstone, invalid type: %T\n", tombstone.Obj)
+                    return
+                }
+            }
+            meta := getObjectMeta(robj)
+            log.Printf("DELETE %s: %s/%s\n", resourceType, meta.Namespace, meta.Name)
+            ch <- robj
+        },
+    }
+}
+
 func main() {
     cfg, err := clientcmd.BuildConfigFromFlags("", clientcmd.RecommendedHomeFile)
     if err != nil { 
@@ -68,49 +101,23 @@ func main() {
 
     updatesCh := make(chan runtime.Object, 100)
 
-    newEventHandler := func(resourceType string) cache.ResourceEventHandlerFuncs {
-        return cache.ResourceEventHandlerFuncs{
-            AddFunc: func(obj interface{}) {
-                log.Printf("ADD %s: %s\n", resourceType, getObjectMeta(obj).Name)
-                updatesCh <- obj.(runtime.Object)
-            },
-            UpdateFunc: func(oldObj, newObj interface{}) {
-                log.Printf("UPDATE %s: %s\n", resourceType, getObjectMeta(newObj).Name)
-                updatesCh <- newObj.(runtime.Object)
-            },
-            DeleteFunc: func(obj interface{}) {
-                robj, ok := obj.(runtime.Object)
-                if !ok {
-                    tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
-                    if !ok {
-                        log.Printf("Error decoding object, invalid type: %T\n", obj)
-                        return
-                    }
-                    robj, ok = tombstone.Obj.(runtime.Object)
-                    if !ok {
-                        log.Printf("Error decoding object tombstone, invalid type: %T\n", tombstone.Obj)
-                        return
-                    }
-                }
-                log.Printf("DELETE %s: %s\n", resourceType, getObjectMeta(robj).Name)
-                updatesCh <- robj
-            },
-        }
-    }
-
     podInf := factory.Core().V1().Pods().Informer()
-    rsInf := factory.Apps().V1().ReplicaSets().Informer()
-    deployInf := factory.Apps().V1().Deployments().Informer()
-    nodeInf := factory.Core().V1().Nodes().Informer()
-    svcInf := factory.Core().V1().Services().Informer()
-    cmInf := factory.Core().V1().ConfigMaps().Informer()
+    podInf.AddEventHandler(newEventHandler("Pod", updatesCh))
 
-    podInf.AddEventHandler(newEventHandler("Pod"))
-    rsInf.AddEventHandler(newEventHandler("ReplicaSet"))
-    deployInf.AddEventHandler(newEventHandler("Deployment"))
-    nodeInf.AddEventHandler(newEventHandler("Node"))
-    svcInf.AddEventHandler(newEventHandler("Service"))
-    cmInf.AddEventHandler(newEventHandler("ConfigMap"))
+    rsInf := factory.Apps().V1().ReplicaSets().Informer()
+    rsInf.AddEventHandler(newEventHandler("ReplicaSet", updatesCh))
+
+    deployInf := factory.Apps().V1().Deployments().Informer()
+    deployInf.AddEventHandler(newEventHandler("Deployment", updatesCh))
+
+    nodeInf := factory.Core().V1().Nodes().Informer()
+    nodeInf.AddEventHandler(newEventHandler("Node", updatesCh))
+
+    svcInf := factory.Core().V1().Services().Informer()
+    svcInf.AddEventHandler(newEventHandler("Service", updatesCh))
+
+    cmInf := factory.Core().V1().ConfigMaps().Informer()
+    cmInf.AddEventHandler(newEventHandler("ConfigMap", updatesCh))
 
     go func() {
         for obj := range updatesCh {
