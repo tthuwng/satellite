@@ -9,11 +9,11 @@
 -   [x] **3.3 Attach handlers:**
     -   [x] Create an `updatesCh` channel.
     -   [x] Implement `OnAdd`, `OnUpdate`, `OnDelete` handlers for each informer to push objects to `updatesCh`.
--   [ ] **3.4 Cache layer:**
-    -   [ ] Define `EntityKey` struct (`{type, namespace, name}`).
-    -   [ ] Implement a cache map (`map[EntityKey]SimplifiedObject`).
-    -   [ ] Define `SimplifiedObject` struct containing only necessary metadata (e.g., `ObjectMeta`, relevant spec/status fields).
-    -   [ ] Implement logic to process `updatesCh` and update the cache.
+-   [x] **3.4 Cache layer:**
+    -   [x] Define `EntityKey` struct (`{type, namespace, name}`).
+    -   [x] Implement a cache map (`map[EntityKey]SimplifiedObject`). // storing runtime.Object for now
+    -   [x] Define `SimplifiedObject` struct containing only necessary metadata (e.g., `ObjectMeta`, relevant spec/status fields). // deferred this, storing full object
+    -   [x] Implement logic to process `updatesCh` and update the cache. // handlers update cache directly
 -   [ ] **3.5 Graph builder:**
     -   [ ] Define `Graph`, `GraphNode`, `GraphRelationship` structs matching the spec.
     -   [ ] Implement function `BuildGraph(cache map[EntityKey]SimplifiedObject) Graph`.
