@@ -1,0 +1,69 @@
+# Satellite TODO List
+
+## Phase 1: Core Implementation (Steps 3.1 - 3.7)
+
+-   [x] **3.1 Bootstrap:** Implement logic to connect to Kubernetes API (in-cluster or local kubeconfig).
+-   [x] **3.2 Set up informers:**
+    -   [x] Initialize `SharedInformerFactory`.
+    -   [x] Get informers for Pods, ReplicaSets, Deployments, Nodes, Services, ConfigMaps.
+-   [x] **3.3 Attach handlers:**
+    -   [x] Create an `updatesCh` channel.
+    -   [x] Implement `OnAdd`, `OnUpdate`, `OnDelete` handlers for each informer to push objects to `updatesCh`.
+-   [ ] **3.4 Cache layer:**
+    -   [ ] Define `EntityKey` struct (`{type, namespace, name}`).
+    -   [ ] Implement a cache map (`map[EntityKey]SimplifiedObject`).
+    -   [ ] Define `SimplifiedObject` struct containing only necessary metadata (e.g., `ObjectMeta`, relevant spec/status fields).
+    -   [ ] Implement logic to process `updatesCh` and update the cache.
+-   [ ] **3.5 Graph builder:**
+    -   [ ] Define `Graph`, `GraphNode`, `GraphRelationship` structs matching the spec.
+    -   [ ] Implement function `BuildGraph(cache map[EntityKey]SimplifiedObject) Graph`.
+    -   [ ] Iterate cache to create `[]GraphNode`.
+    -   [ ] Implement relationship derivation logic:
+        -   [ ] Pod -> ReplicaSet (`ownerReferences`).
+        -   [ ] ReplicaSet -> Deployment (`ownerReferences`).
+        -   [ ] Pod -> Node (`spec.nodeName`).
+        -   [ ] Service -> Pod (label selectors).
+        -   [ ] Pod -> ConfigMap (`volumes`).
+-   [ ] **3.6 Revision logic:**
+    -   [ ] Add a global `revision` counter (`uint64`).
+    -   [ ] Increment `revision` on every cache change.
+    -   [ ] Stamp `revision` on nodes/relationships affected by the change (or simply on the whole graph for simplicity initially).
+-   [ ] **3.7 Emit:**
+    -   [ ] Implement JSON marshaling (consider `jsoniter`).
+    -   [ ] Implement file writing logic:
+        -   [ ] Generate versioned filename (`graph-YYYYMMDD-HHMMSS.jsonl`).
+        -   [ ] Write to a temporary file.
+        -   [ ] Use `os.Rename` for atomic write.
+    -   [ ] Trigger emit periodically or based on cache changes.
+
+## Phase 2: CLI & Operability (Steps 3.8 - 3.9)
+
+-   [ ] **3.8 CLI flags:**
+    -   [ ] Add flags for `--output-dir`.
+    -   [ ] Add flag for `--emit-frequency`.
+    -   [ ] Add flag for `--log-level`.
+-   [ ] **3.9 Graceful shutdown:**
+    -   [ ] Implement signal handling (SIGINT, SIGTERM).
+    -   [ ] Ensure informers are stopped.
+    -   [ ] Ensure the last graph state is flushed before exiting.
+
+## Phase 3: Testing (Step 4)
+
+-   [ ] **4.1 Set up Minikube:** Have a local cluster running.
+-   [ ] **4.2 Run Satellite:** Test basic execution and file output.
+-   [ ] **4.3 Mutation smoke-tests:**
+    -   [ ] Test scaling a Deployment.
+    -   [ ] Test deleting a Service.
+    -   [ ] Test creating/mounting a ConfigMap.
+    -   [ ] Verify graph updates and revision increments for each mutation.
+-   [ ] **4.4 Unit tests:**
+    -   [ ] Set up fake client (`k8s.io/client-go/kubernetes/fake`).
+    -   [ ] Write unit tests for graph builder logic (especially relationship rules).
+    -   [ ] Write table-driven tests for relationship derivations.
+
+## Phase 4: Documentation & Refinement (Step 6 from Plan)
+
+-   [ ] Write 1-page summary covering future work, testing strategy, etc.
+-   [ ] Review resource usage (memory/CPU).
+-   [ ] Add basic Prometheus metrics (optional, from future work).
+-   [ ] Refine RBAC permissions (optional, from future work).
