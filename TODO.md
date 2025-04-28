@@ -18,12 +18,12 @@
     -   [x] Define `Graph`, `GraphNode`, `GraphRelationship` structs matching the spec.
     -   [x] Implement function `BuildGraph(cache map[EntityKey]SimplifiedObject) Graph`. // Skeleton + basic node creation
     -   [x] Iterate cache to create `[]GraphNode`. // Basic node creation done
-    -   [ ] Implement relationship derivation logic:
-        -   [ ] Pod -> ReplicaSet (`ownerReferences`).
-        -   [ ] ReplicaSet -> Deployment (`ownerReferences`).
-        -   [ ] Pod -> Node (`spec.nodeName`).
-        -   [ ] Service -> Pod (label selectors).
-        -   [ ] Pod -> ConfigMap (`volumes`).
+    -   [x] Implement relationship derivation logic:
+        -   [x] Pod -> ReplicaSet (`ownerReferences`).
+        -   [x] ReplicaSet -> Deployment (`ownerReferences`).
+        -   [x] Pod -> Node (`spec.nodeName`).
+        -   [x] Service -> Pod (label selectors).
+        -   [x] Pod -> ConfigMap (`volumes`).
 -   [ ] **3.6 Revision logic:**
     -   [ ] Add a global `revision` counter (`uint64`).
     -   [ ] Increment `revision` on every cache change.

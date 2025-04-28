@@ -3,6 +3,9 @@ package main
 import (
 	"log"
 
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -69,7 +72,117 @@ func BuildGraph(cache *ResourceCache, currentGraphRevision uint64) Graph {
 		graph.Nodes = append(graph.Nodes, node)
 	}
 
-	// TODO: build relationships
+	// --- Relationship building ---
+	// lookups for efficient relationship finding
+	podMap := make(map[GraphEntityKey]*corev1.Pod)
+	for _, obj := range objects {
+		if pod, ok := obj.(*corev1.Pod); ok {
+			key, _ := getKey(pod)
+			graphKey := GraphEntityKey{Name: key.Name, Namespace: key.Namespace, Kind: key.Kind}
+			podMap[graphKey] = pod
+		}
+	}
+
+	for _, obj := range objects {
+		sourceKey, ok := getKey(obj)
+		if !ok {
+			continue
+		}
+		sourceGraphKey := GraphEntityKey{Name: sourceKey.Name, Namespace: sourceKey.Namespace, Kind: sourceKey.Kind}
+
+		switch o := obj.(type) {
+		case *corev1.Pod:
+			// Pod -> ReplicaSet (OwnerReference)
+			// Pod -> Deployment (OwnerReference - indirect via ReplicaSet)
+			for _, ownerRef := range o.OwnerReferences {
+				if ownerRef.Kind == "ReplicaSet" || ownerRef.Kind == "Deployment" {
+					targetGraphKey := GraphEntityKey{
+						Name:      ownerRef.Name,
+						Namespace: o.Namespace,
+						Kind:      ownerRef.Kind,
+					}
+					graph.Relationships = append(graph.Relationships, GraphRelationship{
+						Source:           sourceGraphKey,
+						Target:           targetGraphKey,
+						RelationshipType: "OWNED_BY", // Pod is owned by RS/Deploy
+						Revision:         currentGraphRevision,
+					})
+				}
+			}
+
+			// Pod -> Node (Scheduled On)
+			if o.Spec.NodeName != "" {
+				targetGraphKey := GraphEntityKey{
+					Name: o.Spec.NodeName,
+					Kind: "Node", // Nodes are not namespaced
+				}
+				graph.Relationships = append(graph.Relationships, GraphRelationship{
+					Source:           sourceGraphKey,
+					Target:           targetGraphKey,
+					RelationshipType: "SCHEDULED_ON",
+					Revision:         currentGraphRevision,
+				})
+			}
+
+			// Pod -> ConfigMap (Mounts Volume)
+			for _, vol := range o.Spec.Volumes {
+				if vol.ConfigMap != nil {
+					targetGraphKey := GraphEntityKey{
+						Name:      vol.ConfigMap.Name,
+						Namespace: o.Namespace,
+						Kind:      "ConfigMap",
+					}
+					graph.Relationships = append(graph.Relationships, GraphRelationship{
+						Source:           sourceGraphKey,
+						Target:           targetGraphKey,
+						RelationshipType: "MOUNTS",
+						Revision:         currentGraphRevision,
+					})
+				}
+			}
+
+		case *appsv1.ReplicaSet:
+			// ReplicaSet -> Deployment (OwnerReference)
+			for _, ownerRef := range o.OwnerReferences {
+				if ownerRef.Kind == "Deployment" {
+					targetGraphKey := GraphEntityKey{
+						Name:      ownerRef.Name,
+						Namespace: o.Namespace,
+						Kind:      ownerRef.Kind,
+					}
+					graph.Relationships = append(graph.Relationships, GraphRelationship{
+						Source:           sourceGraphKey,
+						Target:           targetGraphKey,
+						RelationshipType: "OWNED_BY", // RS is owned by Deploy
+						Revision:         currentGraphRevision,
+					})
+				}
+			}
+			// ReplicaSet -> Pod (Owns) - Implicitly handled by Pod -> ReplicaSet
+
+		case *appsv1.Deployment:
+			// Deployment -> ReplicaSet (Owns) - Implicitly handled by ReplicaSet -> Deployment
+
+		case *corev1.Service:
+			// Service -> Pod (Selector)
+			if o.Spec.Selector != nil && len(o.Spec.Selector) > 0 {
+				sel := labels.SelectorFromSet(o.Spec.Selector)
+				for podKey, pod := range podMap {
+					// Check namespace match before label match
+					if pod.Namespace == o.Namespace && sel.Matches(labels.Set(pod.Labels)) {
+						graph.Relationships = append(graph.Relationships, GraphRelationship{
+							Source:           sourceGraphKey,
+							Target:           podKey,
+							RelationshipType: "SELECTS",
+							Revision:         currentGraphRevision,
+						})
+					}
+				}
+			}
+
+			// Node and ConfigMap do not originate relationships in this model
+		}
+	}
 
 	log.Printf("Built graph revision %d with %d nodes and %d relationships\n",
 		currentGraphRevision, len(graph.Nodes), len(graph.Relationships))

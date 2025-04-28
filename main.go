@@ -4,16 +4,21 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
+	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/cache"
+	cache "k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 )
+
+var currentGraphRevision uint64 = 0
+var revisionMu sync.Mutex
 
 func getObjectMeta(obj interface{}) metav1.ObjectMeta {
 	switch o := obj.(type) {
@@ -114,9 +119,33 @@ func main() {
 	}
 	log.Println("Caches synced.")
 
-	// TODO: start the graph building/emitting loop here
-	log.Println("Satellite running. Press Ctrl+C to exit.")
+	// --- Graph build and emit loop ---
+	// TODO: Make ticker duration configurable via flag
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
 
-	<-stopCh
+	log.Println("Starting graph build loop...")
+
+Loop:
+	for {
+		select {
+		case <-ticker.C:
+			revisionMu.Lock()
+			currentGraphRevision++
+			graphRevision := currentGraphRevision
+			revisionMu.Unlock()
+
+			log.Printf("Tick: Building graph revision %d\n", graphRevision)
+			graph := BuildGraph(resourceCache, graphRevision)
+			// TODO: Emit graph (e.g., marshal to JSON and write to file)
+			log.Printf("Built graph revision %d with %d nodes and %d relationships (not emitted yet).\n",
+				graph.GraphRevision, len(graph.Nodes), len(graph.Relationships))
+
+		case <-stopCh:
+			log.Println("Received stop signal, exiting build loop.")
+			break Loop
+		}
+	}
+
 	log.Println("Shutdown complete.")
 }
